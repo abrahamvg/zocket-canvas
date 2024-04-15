@@ -67,7 +67,7 @@ class CanvasElement {
         this.width,
         this.height
       );
-      this.drawBackground()
+      this.drawBackground();
     }
   }
   async loadMaskAndStroke() {
@@ -78,7 +78,7 @@ class CanvasElement {
 
   drawBackground() {
     this.ctx.fillStyle = this.backgroundColor;
-    this.ctx.fillRect(this.x, this.y, this.width, this.height);
+    this.ctx.fillRect(0,0, this.ctx.canvas.width, this.ctx.canvas.height);
   }
 
   loadImage(url) {
@@ -103,7 +103,6 @@ class BackgroundElement extends CanvasElement {
     this.ctx.fillRect(this.x, this.y, this.width, this.height);
   }
 }
-
 
 class CaptionElement extends CanvasElement {
   constructor(ctx, text, x, y, fontSize, alignment, textColor) {
@@ -179,30 +178,30 @@ class MainImage extends CanvasElement {
       this.ctx.globalCompositeOperation = "destination-in";
       this.ctx.drawImage(
         this.maskImage,
-        this.x,
-        this.y,
-        this.width,
-        this.height
+        0,
+        0,
+        this.ctx.canvas.width,
+        this.ctx.canvas.height
       );
       this.ctx.globalCompositeOperation = "source-over";
 
       // Draw the stroke
       this.ctx.drawImage(
         this.strokeImage,
-        this.x,
-        this.y,
-        this.width,
-        this.height
+        0,
+        0,
+        this.ctx.canvas.width,
+        this.ctx.canvas.height
       );
 
       // Draw the design image
       this.ctx.globalCompositeOperation = "destination-over";
       this.ctx.drawImage(
         this.designImage,
-        this.x,
-        this.y,
-        this.width,
-        this.height
+        0,
+        0,
+        this.ctx.canvas.width,
+        this.ctx.canvas.height
       );
     }
   }
@@ -237,12 +236,13 @@ const CanvasEditor = ({
   callToAction,
   image,
   backgroundColor,
+  data,
 }) => {
   const imageMask = {
-    x: 0,
-    y: 0,
-    width: 300,
-    height: 150,
+    x: 56,
+    y: 442,
+    width: 970,
+    height: 600,
     maskUrl:
       "https://d273i1jagfl543.cloudfront.net/templates/global_temp_landscape_temp_10_mask.png",
     strokeUrl:
@@ -279,6 +279,9 @@ const CanvasEditor = ({
     // Draw image
     const { x, y, width, height, maskUrl, strokeUrl, designUrl } = imageMask;
 
+    const backgroundElement = new BackgroundElement(ctx, 0, 0, backgroundColor);
+    backgroundElement.draw();
+
     const mainImage = new CanvasElement(
       ctx,
       x,
@@ -289,12 +292,9 @@ const CanvasEditor = ({
       image,
       maskUrl,
       strokeUrl,
-      designUrl,
+      designUrl
     );
     mainImage.draw();
-
-    const backgroundElement = new BackgroundElement(ctx, x, y, backgroundColor);
-    backgroundElement.draw();
 
     const captionElement = new CaptionElement(
       ctx,
@@ -323,7 +323,10 @@ const CanvasEditor = ({
     <div className="w-full h-full flex items-center justify-center">
       <canvas
         ref={canvasRef}
+        height="1080"
+        width="1080"
         className="border border-gray-500 h-4/5 w-4/5"
+        style={{ height:400, width: 400 }}
       ></canvas>
     </div>
   );

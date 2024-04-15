@@ -2,73 +2,109 @@ import { useState } from "react";
 import DeleteIcon from "./images/delete.png";
 import "./App.css";
 import { HexColorPicker } from "react-colorful";
-import CanvasEditor from "./CanvasEditor";
+// import CanvasEditor from "./components/CanvasEditor";
+import CanvasEditor from "./components/CanvasTesting"; 
+import EyeDropper from "./components/EyeDropper";
+import { data } from "autoprefixer";
 
 function App() {
   // const [count, setCount] = useState(0)
   const [selectedImage, setSelectedImage] = useState(null);
   const [color, setColor] = useState([]);
-  const [selectedColor, setSelectedColor] = useState("rgb(229 231 235)");
+  // const [selectedColor, setSelectedColor] = useState("rgb(229 231 235)");
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+  const [currentColor, setCurrentColor] = useState("rgb(229 231 235)");
 
   const [captionText, setCaptionText] = useState("");
   const [callToAction, setCallToAction] = useState("");
 
+  const data = {
+    caption: {
+      text: "1 & 2 BHK Luxury Apartments at just Rs.34.97 Lakhs",
+      position: { x: 50, y: 50 },
+      max_characters_per_line: 31,
+      font_size: 44,
+      alignment: "left",
+      text_color: "#000000",
+    },
+    cta: {
+      text: "Shop Now",
+      position: { x: 190, y: 320 },
+      text_color: "#000000",
+      background_color: "#000000",
+    },
+    image_mask: { x: 56, y: 442, width: 970, height: 600 },
+    urls: {
+      mask: "https://d273i1jagfl543.cloudfront.net/templates/global_temp_landscape_temp_10_mask.png",
+      stroke:
+        "https://d273i1jagfl543.cloudfront.net/templates/global_temp_landscape_temp_10_Mask_stroke.png",
+      design_pattern:
+        "https://d273i1jagfl543.cloudfront.net/templates/global_temp_landscape_temp_0_Design_Pattern.png",
+    },
+  };
+
   const handleColorSelect = (color) => {
-    setSelectedColor(color);
+    setCurrentColor(color);
   };
 
   const handleClick = () => {
     setIsColorPickerOpen(!isColorPickerOpen);
   };
 
-  let currentColor = "";
-
   const handleColorChange = (color) => {
-    currentColor = color;
+    setCurrentColor(color);
   };
 
-  const handleClose = () => {
+  const handleClose = (colorInput) => {
     setIsColorPickerOpen(false);
-    setSelectedColor(currentColor);
-    const updatedColorList = [...color, currentColor];
+    console.log(colorInput);
+    if (!color.includes(colorInput)) {
+      const updatedColorList = [...color, colorInput];
 
-    if (updatedColorList.length > 5) {
-      // Remove the first element from the updatedColorList array
-      setColor(updatedColorList.slice(1));
+      if (updatedColorList.length > 5) {
+        // Remove the first element from the updatedColorList array
+        setColor(updatedColorList.slice(1));
+      } else {
+        setColor(updatedColorList);
+      }
+      setCurrentColor(colorInput);
     } else {
-      setColor(updatedColorList);
+      setCurrentColor(colorInput);
     }
   };
 
   return (
-    <div className="h-screen w-screen bg-gray-50 flex justify-center items-center">
-      <div className="h-fit w-3/5 bg-white shadow-md rounded-2xl grid grid-cols-12 ">
-        <div className="left col-span-6 h-full"
-        >
-          {/* Canvas Element */}
+    <div className="min-h-screen p-6 w-screen bg-gray-50 flex justify-center items-center">
+      <div className="max-h-[560px] max-w-[52rem] bg-white shadow-md rounded-2xl grid grid-cols-12 max-md:max-w-[32rem] max-md:max-h-full">
+        {/* Canvas Element */}
+        <div className="left col-span-7 h-full max-md:col-span-full max-md:h-96 p-2">
           <CanvasEditor
             captionText={captionText}
             callToAction={callToAction}
             image={selectedImage}
-            backgroundColor={selectedColor}
+            backgroundColor={currentColor}
+            data={data}
           />
         </div>
-        <div className="right col-span-6 bg-white font-satoshi py-12 px-6 h-full">
-          {/* Customisation Element */}
+        {/* Customisation Element */}
+        <div className="right md:col-span-5 bg-white font-satoshi py-12 px-6 h-full col-span-full rounded-lg">
           <div className="header text-center">
             <h4>Ad Customisation</h4>
             <p>Customise you Ad and get template accordingly</p>
           </div>
+
+          {/* Choose image */}
           <div className="flex flex-row mt-4 gap-2">
-            <div className="w-full p-3 border-gray-100 border-solid border-[2px] rounded-lg w-4/5">
+            <div className="w-full">
               <label htmlFor="imageInput">
-                <p>
-                  Change the ad creative image.{" "}
-                  <span className="text-blue-400 underline font-bold cursor-pointer">
-                    select file.
-                  </span>
-                </p>
+                <div className="p-3 border-gray-100 border-solid border-[2px] rounded-lg cursor-pointer ">
+                  <p>
+                    Change the ad creative image.{" "}
+                    <span className="text-blue-400 underline font-bold">
+                      select file.
+                    </span>
+                  </p>
+                </div>
               </label>
             </div>
             {/* File input */}
@@ -94,18 +130,21 @@ function App() {
             />
             {selectedImage && (
               <div
-                className="h-full w-12 p-3 border-gray-100 border-solid border-[2px] rounded-lg"
+                className="p-2 flex justify-center items-center border-gray-100 border-solid border-[2px] rounded-lg cursor-pointer"
                 onClick={() => setSelectedImage(null)}
               >
-                <img src={DeleteIcon} alt="" />
+                <img className="w-5 h-5" src={DeleteIcon} alt="" />
               </div>
             )}
           </div>
+
           <div className="h-12 w-full px-3 flex justify-between items-center my-5">
             <div className="w-full h-[1px] bg-gray-400"></div>
             <p className="mx-2 text-gray-400 w-56 text-center">Edit Contents</p>
             <div className="w-full h-[1px] bg-gray-400"></div>
           </div>
+
+          {/* Input for Ad Content */}
           <div className="mb-5 border  border-gray-400 focus-within:ring-blue-500 focus-within:border-blue-500 focus-within:text-blue-500 rounded-lg px-3 py-1 check">
             <label
               htmlFor="text"
@@ -123,6 +162,8 @@ function App() {
               required
             />
           </div>
+
+          {/* Input for CTA */}
           <div className="mb-5 border border-gray-400 focus-within:ring-blue-500 focus-within:border-blue-500 rounded-lg px-3 py-1 check">
             <label htmlFor="text" className="block mb-1">
               <p>CTA</p>
@@ -137,25 +178,28 @@ function App() {
               required
             />
           </div>
+
           <div className="mb-2">
             <p>Choose You Color</p>
           </div>
-          <div className="flex flex-row gap-2 items-center">
+
+          {/* Color Pick Option */}
+          <div className="flex flex-row gap-2 items-center relative">
             {color.length > 0 && (
               <>
                 {color.map((color, index) => (
                   <>
                     <div
                       className={`${
-                        selectedColor === color
+                        currentColor === color
                           ? "border-2 border-blue-500 "
                           : ""
                       }rounded-full`}
                     >
                       <div
                         key={index}
-                        className={`w-6 h-6 border flex justify-center items-center rounded-full ${
-                          selectedColor === color
+                        className={`w-6 h-6 border flex justify-center items-center rounded-full cursor-pointer ${
+                          currentColor === color
                             ? "border-2 border-white"
                             : "border-4 border-white"
                         }`}
@@ -169,31 +213,34 @@ function App() {
             )}
 
             <div
-              className="w-6 h-6 border bg-gray-200 flex justify-center items-center rounded-full"
+              className="w-6 h-6 border bg-gray-200 flex justify-center items-center rounded-full cursor-pointer"
               onClick={handleClick}
             >
               <p className="text-gray-700 font-black text-base">+</p>
             </div>
+
             {isColorPickerOpen && (
               <>
-                <div
-                  style={{ position: "absolute", inset: "0px" }}
-                  onClick={handleClose}
-                ></div>
                 <HexColorPicker
-                  className="absolute bottom-[200px]"
+                  className="absolute bottom-0 left-0 z-10"
                   color={color[color.length - 1]}
                   onChange={handleColorChange}
                 />
-                {/* <input
-                  type="color"
-                  value={color[color.length - 1]}
-                  onChange={(e) => handleColorChange(e.target.value)}
-                  className="mt-4"
-                /> */}
+                <EyeDropper
+                  className="p-3 bg-white rounded-full shadow-md w-10 h-10 cursor-pointer absolute z-[11] top-[-180px] left-[208px]"
+                  handleClose={handleClose}
+                />
               </>
             )}
           </div>
+          {isColorPickerOpen && (
+            <div
+              className="inset-0 absolute"
+              onClick={() => {
+                handleClose(currentColor);
+              }}
+            ></div>
+          )}
         </div>
       </div>
     </div>
