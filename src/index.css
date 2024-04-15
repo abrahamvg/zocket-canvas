@@ -15,28 +15,28 @@
 }
 
 @font-face {
-  font-family: 'Satoshi';
+  font-family: 'Satoshi', 'Helvetica';
   font-weight: 500;
-  src: url('assets/font/Satoshi-Medium.otf') format('otf');
+  src: url('assets/Satoshi-Medium.otf') format('opentype');
 }
 @font-face {
-  font-family: 'Satoshi';
+  font-family: 'Satoshi', 'Helvetica';
   font-weight: 700;
-  src: url('assets/font/Satoshi-Bold.otf') format('otf');
+  src: url('assets/Satoshi-Bold.otf') format('opentype');
 }
 @font-face {
-  font-family: 'Satoshi';
+  font-family: 'Satoshi', 'Helvetica';
   font-weight: 900;
-  src: url('assets/font/Satoshi-Black.otf') format('otf');
+  src: url('assets/Satoshi-Black.otf') format('opentype');
 }
 @font-face {
-  font-family: 'Satoshi';
+  font-family: 'Satoshi', 'Helvetica';
   font-weight: 300;
-  src: url('assets/font/Satoshi-Bold.otf') format('otf');
+  src: url('assets/Satoshi-Bold.otf') format('opentype');
 }
 
 @font-face {
-  font-family: 'Satoshi';
+  font-family: 'Satoshi', 'Helvetica';
   font-weight: normal;
-  src: url('assets/font/Satoshi-Regular.otf') format('otf');
+  src: url('assets/Satoshi-Regular.otf') format('opentype');
 }

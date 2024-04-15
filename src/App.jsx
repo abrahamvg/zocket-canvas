@@ -2,10 +2,9 @@ import { useState } from "react";
 import DeleteIcon from "./images/delete.png";
 import "./App.css";
 import { HexColorPicker } from "react-colorful";
-// import CanvasEditor from "./components/CanvasEditor";
-import CanvasEditor from "./components/CanvasTesting"; 
+import CanvasEditor from "./components/CanvasEditor";
+// import CanvasEditor from "./components/CanvasTesting";
 import EyeDropper from "./components/EyeDropper";
-import { data } from "autoprefixer";
 
 function App() {
   // const [count, setCount] = useState(0)
@@ -18,7 +17,7 @@ function App() {
   const [captionText, setCaptionText] = useState("");
   const [callToAction, setCallToAction] = useState("");
 
-  const data = {
+  const [data, setData] = useState({
     caption: {
       text: "1 & 2 BHK Luxury Apartments at just Rs.34.97 Lakhs",
       position: { x: 50, y: 50 },
@@ -30,7 +29,7 @@ function App() {
     cta: {
       text: "Shop Now",
       position: { x: 190, y: 320 },
-      text_color: "#000000",
+      text_color: "#FFFFFF",
       background_color: "#000000",
     },
     image_mask: { x: 56, y: 442, width: 970, height: 600 },
@@ -41,7 +40,7 @@ function App() {
       design_pattern:
         "https://d273i1jagfl543.cloudfront.net/templates/global_temp_landscape_temp_0_Design_Pattern.png",
     },
-  };
+  });
 
   const handleColorSelect = (color) => {
     setCurrentColor(color);
@@ -57,7 +56,6 @@ function App() {
 
   const handleClose = (colorInput) => {
     setIsColorPickerOpen(false);
-    console.log(colorInput);
     if (!color.includes(colorInput)) {
       const updatedColorList = [...color, colorInput];
 
@@ -184,7 +182,7 @@ function App() {
           </div>
 
           {/* Color Pick Option */}
-          <div className="flex flex-row gap-2 items-center relative">
+          <div className="flex flex-row gap-2 items-center relative h-8">
             {color.length > 0 && (
               <>
                 {color.map((color, index) => (

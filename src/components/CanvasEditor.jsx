@@ -1,84 +1,15 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { useRef, useEffect } from "react";
+import { data } from "autoprefixer";
+import { useRef, useEffect, useState } from "react";
 
 class CanvasElement {
-  constructor(
-    ctx,
-    x,
-    y,
-    width,
-    height,
-    backgroundColor,
-    image,
-    maskUrl,
-    strokeUrl,
-    designUrl
-  ) {
+  constructor(ctx, x, y, width, height) {
     this.ctx = ctx;
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
-    this.image = image;
-    this.maskUrl = maskUrl;
-    this.strokeUrl = strokeUrl;
-    this.designUrl = designUrl;
-    this.maskImage = null;
-    this.strokeImage = null;
-    this.designImage = null;
-    this.backgroundColor = backgroundColor;
-  }
-
-  async draw() {
-    if (this.image) {
-      await this.loadMaskAndStroke();
-      this.ctx.save();
-
-      // Draw the image
-      this.ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-
-      // Apply the mask
-      this.ctx.globalCompositeOperation = "destination-in";
-      this.ctx.drawImage(
-        this.maskImage,
-        this.x,
-        this.y,
-        this.width,
-        this.height
-      );
-      this.ctx.globalCompositeOperation = "source-over";
-
-      // Draw the stroke
-      this.ctx.drawImage(
-        this.strokeImage,
-        this.x,
-        this.y,
-        this.width,
-        this.height
-      );
-
-      // Draw the design image
-      this.ctx.globalCompositeOperation = "destination-over";
-      this.ctx.drawImage(
-        this.designImage,
-        this.x,
-        this.y,
-        this.width,
-        this.height
-      );
-      this.drawBackground();
-    }
-  }
-  async loadMaskAndStroke() {
-    this.maskImage = await this.loadImage(this.maskUrl);
-    this.strokeImage = await this.loadImage(this.strokeUrl);
-    this.designImage = await this.loadImage(this.designUrl);
-  }
-
-  drawBackground() {
-    this.ctx.fillStyle = this.backgroundColor;
-    this.ctx.fillRect(0,0, this.ctx.canvas.width, this.ctx.canvas.height);
   }
 
   loadImage(url) {
@@ -91,7 +22,6 @@ class CanvasElement {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 class BackgroundElement extends CanvasElement {
   constructor(ctx, x, y, backgroundColor) {
     super(ctx, x, y, ctx.canvas.width, ctx.canvas.height);
@@ -99,135 +29,175 @@ class BackgroundElement extends CanvasElement {
   }
 
   draw() {
+    this.ctx.save();
+    this.ctx.globalCompositeOperation = "destination-over";
     this.ctx.fillStyle = this.backgroundColor;
     this.ctx.fillRect(this.x, this.y, this.width, this.height);
+    this.ctx.restore();
   }
 }
 
-class CaptionElement extends CanvasElement {
-  constructor(ctx, text, x, y, fontSize, alignment, textColor) {
-    super(ctx, x, y, 0, 0);
-    this.text = text;
-    this.fontSize = fontSize;
-    this.alignment = alignment;
-    this.textColor = textColor;
+class DesignImageElement extends CanvasElement {
+  constructor(ctx, x, y, designImage) {
+    super(ctx, x, y, ctx.canvas.width, ctx.canvas.height);
+    // this.designUrl = designUrl;
+    this.designImage = designImage;
   }
 
   draw() {
-    this.ctx.fillStyle = this.textColor;
-    this.ctx.globalCompositeOperation = "source-over";
-    this.ctx.font = `${this.fontSize}px Satoshi`;
-    this.ctx.fillStyle = this.textColor;
-    this.ctx.textAlign = this.alignment;
-    this.ctx.fillText(this.text, this.x, this.y);
-  }
-}
-class CtaElement extends CanvasElement {
-  constructor(ctx, text, x, y, fontSize, alignment, textColor) {
-    super(ctx, x, y, 0, 0);
-    this.text = text;
-    this.fontSize = fontSize;
-    this.alignment = alignment;
-    this.textColor = textColor;
-  }
-
-  draw() {
-    this.ctx.fillStyle = this.textColor;
-    this.ctx.globalCompositeOperation = "source-over";
-    this.ctx.font = `${this.fontSize}px Satoshi`;
-    this.ctx.fillStyle = this.textColor;
-    this.ctx.textAlign = this.alignment;
-    this.ctx.fillText(this.text, this.x, this.y);
-  }
-}
-
-class MainImage extends CanvasElement {
-  constructor(
-    ctx,
-    x,
-    y,
-    width,
-    height,
-    image,
-    maskUrl,
-    strokeUrl,
-    designUrl,
-    backgroundColor,
-    text
-  ) {
-    super(ctx, x, y, width, height);
-    this.image = image;
-    this.maskUrl = maskUrl;
-    this.strokeUrl = strokeUrl;
-    this.designUrl = designUrl;
-    this.maskImage = null;
-    this.strokeImage = null;
-    this.designImage = null;
-    this.backgroundColor = backgroundColor;
-  }
-
-  async draw() {
-    if (this.image) {
-      await this.loadMaskAndStroke();
-      this.ctx.save();
-
-      // Draw the image
-      this.ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-
-      // Apply the mask
-      this.ctx.globalCompositeOperation = "destination-in";
-      this.ctx.drawImage(
-        this.maskImage,
-        0,
-        0,
-        this.ctx.canvas.width,
-        this.ctx.canvas.height
-      );
-      this.ctx.globalCompositeOperation = "source-over";
-
-      // Draw the stroke
-      this.ctx.drawImage(
-        this.strokeImage,
-        0,
-        0,
-        this.ctx.canvas.width,
-        this.ctx.canvas.height
-      );
-
-      // Draw the design image
-      this.ctx.globalCompositeOperation = "destination-over";
+    if (this.designImage) {
+      // this.ctx.globalCompositeOperation = "source-over";
       this.ctx.drawImage(
         this.designImage,
-        0,
-        0,
+        this.x,
+        this.y,
+        this.ctx.canvas.width,
+        this.ctx.canvas.height
+      );
+    }
+  }
+}
+
+class MaskImageElement extends CanvasElement {
+  constructor(ctx, x, y, maskImage) {
+    super(ctx, x, y, ctx.canvas.width, ctx.canvas.height);
+    this.maskImage = maskImage;
+  }
+  draw() {
+    if (this.maskImage) {
+      // this.ctx.globalCompositeOperation = "source-over";
+      this.ctx.drawImage(
+        this.maskImage,
+        this.x,
+        this.y,
+        this.ctx.canvas.width,
+        this.ctx.canvas.height
+      );
+    }
+  }
+}
+
+class StrokeImageElement extends CanvasElement {
+  constructor(ctx, x, y, strokeImage) {
+    super(ctx, x, y, ctx.canvas.width, ctx.canvas.height);
+    this.strokeImage = strokeImage;
+  }
+
+  draw() {
+    if (this.strokeImage) {
+      this.ctx.globalCompositeOperation = "source-over";
+      this.ctx.drawImage(
+        this.strokeImage,
+        this.x,
+        this.y,
         this.ctx.canvas.width,
         this.ctx.canvas.height
       );
     }
   }
 
-  caption() {
-    this.ctx.fillStyle = this.textColor;
-    this.ctx.globalCompositeOperation = "source-over";
-    this.ctx.font = `${this.fontSize}px Satoshi`;
-    this.ctx.fillStyle = this.textColor;
-    this.ctx.textAlign = this.alignment;
-    this.ctx.fillText(this.text, this.x, this.y);
-  }
-
-  async loadMaskAndStroke() {
-    this.maskImage = await this.loadImage(this.maskUrl);
+  async loadStroke() {
     this.strokeImage = await this.loadImage(this.strokeUrl);
-    this.designImage = await this.loadImage(this.designUrl);
+  }
+}
+
+class MainImage extends CanvasElement {
+  constructor(ctx, x, y, width, height, image) {
+    super(ctx, x, y, width, height);
+    this.image = image;
   }
 
-  loadImage(url) {
-    return new Promise((resolve, reject) => {
-      const image = new Image();
-      image.onload = () => resolve(image);
-      image.onerror = reject;
-      image.src = url;
-    });
+  draw() {
+    if (this.image) {
+      this.ctx.save();
+      this.ctx.globalCompositeOperation = "source-in";
+      this.ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+      this.ctx.restore();
+    }
+  }
+}
+
+class CaptionElement extends CanvasElement {
+  constructor(
+    ctx,
+    text,
+    x,
+    y,
+    fontSize,
+    alignment,
+    textColor,
+    maxCharactersPerLine
+  ) {
+    super(ctx, x, y, 0, 0);
+    this.text = text;
+    this.fontSize = fontSize;
+    this.alignment = alignment;
+    this.textColor = textColor;
+    this.maxCharactersPerLine = maxCharactersPerLine;
+  }
+
+  draw() {
+    const lines = breakSentenceToLines(this.text, this.maxCharactersPerLine);
+    let y = this.y;
+    for (const line of lines) {
+      this.ctx.fillStyle = this.textColor;
+      this.ctx.globalCompositeOperation = "source-over";
+      this.ctx.font = `${this.fontSize}px Satoshi`;
+      this.ctx.textAlign = this.alignment;
+      this.ctx.fillText(line, this.x, y);
+
+      y += this.fontSize + 24;
+    }
+  }
+}
+
+function breakSentenceToLines(sentence, maxCharsPerLine) {
+  const words = sentence.split(" ");
+  const lines = [];
+  let currentLine = "";
+
+  for (const word of words) {
+    if (currentLine.length + word.length > maxCharsPerLine) {
+      lines.push(currentLine.trim());
+      currentLine = "";
+    }
+    currentLine += `${currentLine ? " " : ""}${word}`;
+  }
+
+  return lines.concat(currentLine.trim());
+}
+
+class CtaElement extends CanvasElement {
+  constructor(ctx, text, x, y, backgroundColor, textColor) {
+    super(ctx, x, y, 0, 0);
+    this.text = text;
+    this.backgroundColor = backgroundColor;
+    this.fontSize = 32;
+    this.textColor = textColor;
+    this.alignment = "center";
+    this.font = `${this.fontSize}px Satoshi`;
+    this.padding = 56;
+    this.radius = 24;
+  }
+
+  draw() {
+    this.ctx.font = this.font;
+    this.ctx.textBaseline = "top";
+    this.ctx.fillStyle = this.backgroundColor;
+
+    this.ctx.beginPath();
+    this.ctx.roundRect(
+      this.x - this.padding / 2,
+      this.y - this.padding / 2,
+      this.ctx.measureText(this.text).width + this.padding,
+      parseInt(this.font, 10) + this.padding,
+      this.radius
+    );
+    this.ctx.stroke();
+    this.ctx.fill();
+
+    this.ctx.fillStyle = this.textColor;
+    this.ctx.fillText(this.text, this.x, this.y);
   }
 }
 
@@ -239,10 +209,11 @@ const CanvasEditor = ({
   data,
 }) => {
   const imageMask = {
-    x: 56,
-    y: 442,
-    width: 970,
-    height: 600,
+    x: 10,
+    y: 50,
+    width: 200,
+    height: 100,
+    image: image,
     maskUrl:
       "https://d273i1jagfl543.cloudfront.net/templates/global_temp_landscape_temp_10_mask.png",
     strokeUrl:
@@ -252,72 +223,131 @@ const CanvasEditor = ({
   };
 
   const canvasRef = useRef(null);
-  const caption = {
-    text: captionText,
-    position: { x: 0, y: 0 },
-    fontSize: 10,
-    alignment: "left",
-    textColor: "#000000",
-    maxCharactersPerLine: 3,
-  };
-  const cta = {
-    text: callToAction,
-    position: { x: 20, y: 50 },
-    fontSize: 10,
-    alignment: "left",
-    textColor: backgroundColor,
-    maxCharactersPerLine: 3,
+  const { caption } = data;
+  const { cta } = data;
+  const { urls } = data;
+
+  //Fallback Text
+  const [fCtaText, setFCtaText] = useState(cta.text);
+  const [fCaptionText, setCFaptionText] = useState(caption.text);
+
+  //Current Text
+  const [cCtaText, setCCtaText] = useState('');
+  const [cCaptionText, setCCaptionText] = useState('');
+
+  const fetchImages = async (urls) => {
+    const { mask, stroke, design_pattern } = urls;
+    const maskImage = await loadImage(mask);
+    const strokeImage = await loadImage(stroke);
+    const designImage = await loadImage(design_pattern);
+    return {
+      maskImage: maskImage,
+      strokeImage: strokeImage,
+      designImage: designImage,
+    };
   };
 
+  const loadImage = async (url) => {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = reject;
+      image.src = url;
+    });
+  };
+
+  const [urlImages, setUrlImages] = useState({});
+  
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");    
 
+    const canvas1 = document.createElement("canvas");
+    canvas1.width = canvas.width;
+    canvas1.height = canvas.height;
+    const ctx1 = canvas1.getContext("2d");
+
+    const { x, y, width, height, image } = imageMask;
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx1.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw image
-    const { x, y, width, height, maskUrl, strokeUrl, designUrl } = imageMask;
-
+    // Draw background
     const backgroundElement = new BackgroundElement(ctx, 0, 0, backgroundColor);
-    backgroundElement.draw();
-
-    const mainImage = new CanvasElement(
+    const designImageElement = new DesignImageElement(
       ctx,
-      x,
-      y,
-      width,
-      height,
-      backgroundColor,
-      image,
-      maskUrl,
-      strokeUrl,
-      designUrl
+      0,
+      0,
+      urlImages.designImage
     );
-    mainImage.draw();
-
+    const strokeImageElement = new StrokeImageElement(
+      ctx,
+      0,
+      0,
+      urlImages.strokeImage
+    );
+    const maskImageElement = new MaskImageElement(
+      ctx1,
+      0,
+      0,
+      urlImages.maskImage
+    );
+    const mainImage = new MainImage(ctx1, 56, 442, 970, 600, image);
     const captionElement = new CaptionElement(
       ctx,
-      caption.text,
+      cCaptionText,
       caption.position.x,
       caption.position.y,
-      caption.fontSize,
+      caption.font_size,
       caption.alignment,
-      caption.textColor
+      caption.text_color,
+      caption.max_characters_per_line
     );
-    captionElement.draw();
-
     const ctaElement = new CtaElement(
       ctx,
-      cta.text,
+      cCtaText,
       cta.position.x,
       cta.position.y,
-      cta.fontSize,
-      cta.alignment,
-      cta.textColor
+      cta.background_color,
+      cta.text_color
     );
+
+
+    if (captionText.length) {
+      setCCaptionText(captionText)
+    }else{
+      setCCaptionText(fCaptionText)
+    }
+    
+    if (callToAction.length) {
+      setCCtaText(callToAction)
+    }else{
+      setCCtaText(fCtaText)
+    }
+
+    backgroundElement.draw();
+    designImageElement.draw();
+    maskImageElement.draw();
+    mainImage.draw();
+    strokeImageElement.draw();
+    captionElement.draw();
     ctaElement.draw();
-  }, [image, captionText, callToAction, backgroundColor]);
+
+    ctx.drawImage(canvas1, 0, 0, canvas.width, canvas.height);
+  }, [image, captionText, callToAction, backgroundColor, urlImages, cCaptionText, cCtaText]);
+
+  useEffect(() => {
+    const fetchAndSetImages = async () => {
+      const images = await fetchImages({
+        mask: imageMask.maskUrl,
+        stroke: imageMask.strokeUrl,
+        design_pattern: imageMask.designUrl,
+      });
+      setUrlImages(images);
+    };
+
+    fetchAndSetImages();
+  }, []);
 
   return (
     <div className="w-full h-full flex items-center justify-center">
@@ -326,7 +356,6 @@ const CanvasEditor = ({
         height="1080"
         width="1080"
         className="border border-gray-500 h-4/5 w-4/5"
-        style={{ height:400, width: 400 }}
       ></canvas>
     </div>
   );
